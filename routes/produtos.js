@@ -3,19 +3,24 @@ const router = express.Router();
 
 router.get('/', (req, res, next) => {
     res.status(200).send({
-        mensagem: 'Usando GET dentro da rota de produto'
+        mensagem: 'Retorna todos os produos'
     })
 });
 
 router.post('/', (req, res, next) => {
+    const produto = {
+        nome: req.body.nome,
+        preco: req.body.preco
+    };
+
     res.status(201).send({
-        mensagem: 'Usando POST dentro da rota de produto'
+        mensagem: 'Inseri um produto',
+        produtoCriado: produto
     })
 });
 
 router.get('/:id_produto', (req, res, next) => {
     const id = req.params.id_produto
-
     if(id === 'especial') {
         res.status(200).send({
             mensagem: 'Usando GET de um produto exclusivo',
