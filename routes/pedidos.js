@@ -3,10 +3,6 @@ const router = express.Router();
 const mysql = require('../mysql').pool;
 
 router.get('/', (req, res, next) => {
-    // res.status(200).send({
-    //     mensagem: 'Retorna os pedidos'
-    // });
-
     mysql.getConnection((error, conn) => {
         if(error) {
             return res.status(500).send({
@@ -14,7 +10,10 @@ router.get('/', (req, res, next) => {
             });
         }
         conn.query(
-            'SELECT * FROM pedidos',
+            `SELECT pedidos.id_pedidos, pedidos.quantidade, produtos.nome, produtos.preco
+             FROM pedidos 
+             INNER JOIN produtos
+             ON produtos.id_produtos = pedidos.id_produtos;`,
             (error, result, fields) => {
                 if(error) {
                     return res.status(500).send({
@@ -22,12 +21,17 @@ router.get('/', (req, res, next) => {
                     });
                 }
                 const response = {
-                    quantidade: result.length,
                     pedidos: result.map(pedido => {
                         return {
                             id_pedidos: pedido.id_pedidos,
-                            id_produtos: pedido.id_produtos,
                             quantidade: pedido.quantidade,
+                            produto: {
+                                id_produtos: pedido.id_produtos,
+                                nome: pedido.nome,
+                                preco: pedido.preco
+                            },
+
+
                             request: {
                                 tipo: 'GET',
                                 descricao: 'Retorna os detalhes de um pedido especifico',
@@ -43,10 +47,6 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/', (req, res, next) => {
-    // const pedido = {
-    //     id_produto: req.body.id_produto,
-    //     quantidade: req.body.quantidade
-    // }
     mysql.getConnection((error, conn) => {
         if(error) {
             return res.status(500).send({
@@ -99,12 +99,6 @@ router.post('/', (req, res, next) => {
 });
 
 router.get('/:id_pedidos', (req, res, next) => {
-    // const id = req.params.id_pedidos
-    // res.status(200).send({
-    //     mensagem: 'Detalhes do pedido',
-    //     id_pedido: id 
-    // });
-
     mysql.getConnection((error, conn) => {
         if(error) {
             return res.status(500).send({
@@ -145,10 +139,6 @@ router.get('/:id_pedidos', (req, res, next) => {
 })
 
 router.delete('/', (req, res, next) => {
-    // res.status(200).send({
-    //     mensagem: 'Pedido excluido'
-    // });
-
     mysql.getConnection((error, conn) => {
         if(error) {
             return res.status(500).send({

@@ -1,12 +1,28 @@
 const express = require('express');
 const router = express.Router();
 const mysql = require('../mysql').pool;
+const multer = require('multer');
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './upload/')
+    },
+    filename: function( req, file, cb ){
+        let data = new Date().toISOString().replace(/:/g, '-') + '-';
+        cb(null, data + file.originalname );
+    }
+})
+const fileFilter = (req, file, cb) => {
+    if(file.mimetype === 'application/octet-stream' || file.mimetype === 'image/jpeg') {
+        cb(null, true); // Caso não queira que passe pelo filtro apenas trocar a segunda propriedade para false 
+    } else {
+        cb(null, false);
+    }
+
+}
+
+const upload = multer({ storage: storage, fileFilter: fileFilter }) // fileSize é um filtro para a imagem
 
 router.get('/', (req, res, next) => {
-    // res.status(200).send({
-    //     mensagem: 'Retorna todos os produos'
-    // })
-
     mysql.getConnection((error, conn) => {
         if(error) {
             return res.status(500).send({
@@ -42,7 +58,8 @@ router.get('/', (req, res, next) => {
     });
 });
 
-router.post('/', (req, res, next) => {
+router.post('/', upload.single('produto_imagem'), (req, res, next) => {
+    console.log(req.file);
     mysql.getConnection((error, conn) => {
         if(error) {
             return res.status(500).send({
@@ -80,18 +97,6 @@ router.post('/', (req, res, next) => {
 });
 
 router.get('/:id_produtos', (req, res, next) => {
-    // const id = req.params.id_produto
-    // if(id === 'especial') {
-    //     res.status(200).send({
-    //         mensagem: 'Usando GET de um produto exclusivo',
-    //         id: id 
-    //     });
-    // } else {
-    //     res.status(200).send({
-    //         mensagem: 'Você passou um id'
-    //     });
-    // }
-
     mysql.getConnection((error, conn) => {
         if(error) {
             return res.status(500).send({
@@ -132,10 +137,6 @@ router.get('/:id_produtos', (req, res, next) => {
 })
 
 router.patch('/', (req, res, next) => {
-    // res.status(201).send({
-    //     mensagem: 'Usando PATCH dentro da rota de produto'
-    // });
-
     mysql.getConnection((error, conn) => {
         if(error) {
             return res.status(500).send({
@@ -173,10 +174,6 @@ router.patch('/', (req, res, next) => {
 });
 
 router.delete('/', (req, res, next) => {
-    // res.status(200).send({
-    //     mensagem: 'Usando DELETE dentro da rota de produto'
-    // });
-
     mysql.getConnection((error, conn) => {
         if(error) {
             return res.status(500).send({
