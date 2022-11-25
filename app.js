@@ -7,12 +7,6 @@ app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: false}));
 app.use(bodyParser.json());
 
-const rotaProdutos = require('./routes/produtos');
-const rotaPedidos = require('./routes/pedidos');
-
-app.use('/produtos', rotaProdutos);
-app.use('/pedidos', rotaPedidos);
-
 app.use((req, res, next) => {
     res.header('Acces-Control-Allow-Origin', '*');
     res.header('Acces-Control-Allow-Origin', 'Content-Type, Origin, X-Requested-With, Accept, Authorization');
@@ -23,6 +17,14 @@ app.use((req, res, next) => {
     }
     next();
 });
+
+const rotaProdutos = require('./routes/produtos');
+const rotaPedidos = require('./routes/pedidos');
+const rotaUsuario = require('./routes/usuarios');
+
+app.use('/produtos', rotaProdutos);
+app.use('/pedidos', rotaPedidos);
+app.use('/usuarios', rotaUsuario);
 
 app.use((req, res, next) => {
     const erro = new Error('Não encontrado');
